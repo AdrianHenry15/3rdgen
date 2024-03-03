@@ -15,12 +15,14 @@ import { useTrackStore } from "stores/track-store";
 import { SongType } from "@/lib/types";
 
 import "swiper/css";
+import { useCartStore } from "stores/cart-store";
 
 const MusicSplash = () => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const { isPlaying, play, pause } = useAudioPlayerStore();
     const { currentTrack, setCurrentTrack } = useTrackStore();
+    const { items, addItem } = useCartStore();
 
     const handleClick = (currentTrack: SongType) => {
         if (isPlaying && currentTrack.id === currentTrack.id) {
@@ -84,11 +86,21 @@ const MusicSplash = () => {
                                 <h1 className="text-white text-3x1 md:text-5xl">{track?.title}</h1>
                                 <div className="my-4">
                                     {/* <button className="border  text-white border-gray-300 py-2 px-5 ml-4">Play Previous Track</button> */}
+                                    {/* PLAY BUTTON */}
                                     <button
                                         onClick={() => handleClick(track)}
                                         className="border bg-gray-300 text-black border-gray-300 py-2 px-5"
                                     >
                                         {isPlaying && track.id === currentTrack.id ? "Pause" : "Play"}
+                                    </button>
+                                    {/* ADD TO CART BUTTON */}
+                                    <button
+                                        onClick={() => addItem(track)}
+                                        className={`${items.find((item) =>
+                                            item.id === track.id ? "bg-red-500 cursor-not-allowed" : "bg-blue-600 cursor-pointer"
+                                        )} border-white border-[1px] text-black py-2 px-5 mx-1`}
+                                    >
+                                        Add To Cart
                                     </button>
                                     {/* <button className="border  text-white border-gray-300 py-2 px-5 ml-4">Play Next Track</button> */}
                                 </div>
