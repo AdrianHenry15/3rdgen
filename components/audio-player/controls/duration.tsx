@@ -47,25 +47,23 @@ const Duration = () => {
         return `${totalMinutes}:${remainingSeconds.toString().padStart(2, "0")}`;
     };
     return (
-        <div className="h-min hidden self-center md:flex">
-            <Box sx={{ width: 300 }}>
-                <Stack spacing={2} direction="row" alignItems="center">
-                    <span>{currentTime}</span>
-                    <Slider
-                        size="small"
-                        aria-label="small"
-                        defaultValue={70}
-                        value={audioRef.current ? (audioRef.current.currentTime / audioRef.current.duration) * 100 || 0 : 0}
-                        max={100}
-                        onChange={handleSeek}
-                        onMouseDown={() => setIsSeeking(true)}
-                        onMouseUp={() => setIsSeeking(false)}
-                        sx={{ color: "error.main" }}
-                    />
-                    <span>{duration}</span>
-                </Stack>
-            </Box>
-        </div>
+        <Box sx={{ width: 300 }}>
+            <Stack spacing={2} direction="row" alignItems="center">
+                <span>{currentTime}</span>
+                <Slider
+                    size="small"
+                    aria-label="small"
+                    defaultValue={70}
+                    value={audioRef.current ? (audioRef.current.currentTime / audioRef.current.duration) * 100 || 0 : 0}
+                    max={100}
+                    onChange={handleSeek}
+                    onMouseDown={() => setIsSeeking(true)}
+                    onMouseUp={() => setIsSeeking(false)}
+                    sx={{ color: "error.main" }}
+                />
+                <span>{duration}</span>
+            </Stack>
+        </Box>
     );
 };
 

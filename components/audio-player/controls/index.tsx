@@ -28,7 +28,9 @@ const Controls = () => {
                 {/* <LuRepeat2 className={AltButton} size={20} /> */}
             </div>
             {/* DURATION */}
-            <Duration />
+            <div className="h-min hidden self-center md:flex">
+                <Duration />
+            </div>
         </div>
     );
 };
