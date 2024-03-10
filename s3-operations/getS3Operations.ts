@@ -1,12 +1,7 @@
+import { S3File } from "@/lib/types";
 import AWS from "aws-sdk";
 
 const s3 = new AWS.S3();
-
-export interface S3File {
-    bucket: string;
-    key: string;
-    content: string;
-}
 
 export async function getAllFilesFromFolder(bucket: string, folder: string): Promise<S3File[]> {
     try {

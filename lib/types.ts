@@ -13,6 +13,12 @@ export type WebsiteType = {
     backdrop_path: any;
 };
 
+export interface S3File {
+    bucket: string;
+    key: string;
+    content: string;
+}
+
 export type SongType = {
     id: string;
     img: any;
