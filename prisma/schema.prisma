@@ -8,20 +8,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model S3TrackDataRef {
+  id         String          @id @default(auto()) @map("_id") @db.ObjectId
+  bucket     String
+  key        String
+  metadata   S3TrackMetadata @relation(fields: [metadataId], references: [id])
+  metadataId String          @db.ObjectId
+  Song       Song[]
+}
+
+model S3TrackMetadata {
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  duration  Int
+  S3DataRef S3TrackDataRef[]
+}
+
 model Song {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
   img         String
   title       String
-  album       String   @map("album")
+  album       String         @map("album")
   artist      String
   genre       String
-  releaseDate String   @map("release_date")
-  duration    String
-  plays       Int      @default(0)
-  file        String
-  Artist      Artist?  @relation(fields: [artistId], references: [id])
-  artistId    String?  @db.ObjectId
-  createdAt   DateTime @default(now())
+  releaseDate String         @map("release_date")
+  bpm         String
+  plays       Int            @default(0)
+  file        S3TrackDataRef @relation(fields: [fileId], references: [id])
+  fileId      String         @db.ObjectId
+  Artist      Artist?        @relation(fields: [artistId], references: [id])
+  artistId    String?        @db.ObjectId
+  createdAt   DateTime       @default(now())
 }
 
 model User {
