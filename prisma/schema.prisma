@@ -30,7 +30,7 @@ model Song {
   album       String?
   artist      String
   genre       String?
-  releaseDate DateTime?
+  releaseDate String?
   bpm         String?
   plays       Int            @default(0)
   file        S3TrackDataRef @relation(fields: [fileId], references: [id])
@@ -38,15 +38,6 @@ model Song {
   Artist      Artist?        @relation(fields: [artistId], references: [id])
   artistId    String?        @db.ObjectId
   createdAt   DateTime       @default(now())
-  // playlists   Playlist[]     @relation("PlaylistSongs")
-}
-
-model Playlist {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String?
-  // songs       Song[]   @relation("PlaylistSongs")
-  createdAt   DateTime @default(now())
 }
 
 model User {

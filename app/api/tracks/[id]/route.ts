@@ -1,7 +1,22 @@
 import { PrismaClient } from "@prisma/client";
+import { NextApiRequest, NextApiResponse } from "next";
 import { getSingleFileFromBucket } from "s3-operations/getS3Operations";
 
 const prisma = new PrismaClient();
+
+interface TrackData {
+    title: string;
+    artist: string;
+    genre: string;
+    releaseDate: string;
+    file: {
+        bucket: string;
+        key: string;
+        metadata: {
+            duration: number;
+        };
+    };
+}
 
 // GET SONG BY ID
 export async function GET(request: Request, id: string) {
@@ -18,10 +33,7 @@ export async function GET(request: Request, id: string) {
 
         if (song) {
             // Access S3 file data
-            const s3FileData = {
-                bucket: "",
-                key: "",
-            };
+            const s3FileData = song.file;
 
             // Fetch content from S3
             const s3FileContent = await getSingleFileFromBucket(s3FileData.bucket, s3FileData.key);
@@ -46,5 +58,46 @@ export async function GET(request: Request, id: string) {
     } catch (error) {
         console.error("Error fetching song:", error);
         return new Response("Failed to fetch song", { status: 500 });
+    }
+}
+
+// UPDATE TRUCK
+export async function PUT(request: NextApiRequest, response: NextApiResponse) {
+    const { id } = request.query as { id: string }; // Extract track ID from request params
+
+    try {
+        // Extract updated track data from request body
+        const { title, artist, genre, releaseDate, file }: TrackData = request.body;
+
+        // Update the track in the database
+        const updatedTrack = await prisma.song.update({
+            where: { id }, // Specify the track ID to update
+            data: {
+                title,
+                artist,
+                genre,
+                releaseDate,
+                file: {
+                    update: {
+                        bucket: file.bucket,
+                        key: file.key,
+                        metadata: {
+                            update: {
+                                duration: file.metadata.duration,
+                            },
+                        },
+                    },
+                },
+            },
+            include: {
+                file: true,
+            },
+        });
+
+        // Return the updated track as JSON response
+        return Response.json(updatedTrack);
+    } catch (error) {
+        console.error("Error updating track:", error);
+        return Response.json({ error: "Failed to update track" });
     }
 }
