@@ -6,10 +6,10 @@ import { getAllFilesFromFolder } from "s3-operations/getS3Operations";
 const prisma = new PrismaClient();
 
 // GET SONGS IN A PARTICULAR FOLDER
-export async function GET(request: Request, response: Response, folder: string) {
+export async function GET(request: Request, response: Response, bucketName: string, folder: string) {
     try {
         // Get all files from the specified folder in the S3 bucket
-        const s3Files: S3File[] = await getAllFilesFromFolder("your-bucket-name", folder);
+        const s3Files: S3File[] = await getAllFilesFromFolder(bucketName, folder);
 
         if (s3Files.length === 0) {
             return response.status(404).json({ message: `No files found in folder '${folder}'` });

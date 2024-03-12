@@ -1,5 +1,5 @@
 import { S3File } from "@/lib/types";
-import AWS from "aws-sdk";
+import AWS from "../config/aws.config";
 
 const s3 = new AWS.S3();
 

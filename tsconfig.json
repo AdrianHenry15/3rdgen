@@ -11,7 +11,8 @@
             "@/app/*": ["app/*"],
             "@/lib/*": ["lib/*"],
             "@/styles/*": ["styles/*"],
-            "@/public/*": ["public/*"]
+            "@/public/*": ["public/*"],
+            "@/config/*": ["config/*"]
         },
         "strict": true,
         "forceConsistentCasingInFileNames": true,

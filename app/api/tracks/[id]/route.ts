@@ -18,7 +18,10 @@ export async function GET(request: Request, id: string) {
 
         if (song) {
             // Access S3 file data
-            const s3FileData = song.file;
+            const s3FileData = {
+                bucket: "",
+                key: "",
+            };
 
             // Fetch content from S3
             const s3FileContent = await getSingleFileFromBucket(s3FileData.bucket, s3FileData.key);
