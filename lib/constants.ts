@@ -1,26 +1,27 @@
 import { NavMenuType } from "./types";
 
+export enum NavMenuItems {
+    HOME = "Home",
+    WEBSITES = "Websites",
+    MUSIC = "Music",
+    UPLOAD = "Upload",
+    CONTACT_US = "Contact Us",
+    ESTIMATE = "Get Your Free Estimate",
+}
+
 export const NavMenuTypeItems: NavMenuType[] = [
     {
-        title: "Home",
+        title: NavMenuItems.HOME,
         link: "/",
     },
     {
-        title: "Websites",
+        title: NavMenuItems.WEBSITES,
         link: "/websites",
     },
     {
-        title: "Music",
+        title: NavMenuItems.MUSIC,
         link: "/music",
     },
-    // {
-    //     title: "Movie Picks",
-    //     link: "/movie-picks",
-    // },
-    // {
-    //     title: "Stock Picks",
-    //     link: "/stock-picks",
-    // },
     // {
     //     title: "Pricing",
     //     link: "/pricing",
@@ -28,26 +29,11 @@ export const NavMenuTypeItems: NavMenuType[] = [
 ];
 export const NavMenuTypeAltItems: NavMenuType[] = [
     {
-        title: "Contact Us",
+        title: NavMenuItems.CONTACT_US,
         link: "/contact-us",
     },
     {
-        title: "Get Your Free Estimate",
+        title: NavMenuItems.ESTIMATE,
         link: "/estimate",
-    },
-];
-
-export const CreatePageNavMenuType: NavMenuType[] = [
-    {
-        title: "Upload Song",
-        link: "/create/upload/songs",
-    },
-    {
-        title: "Create Artist",
-        link: "/create/artists",
-    },
-    {
-        title: "Create Website",
-        link: "/create/websites",
     },
 ];

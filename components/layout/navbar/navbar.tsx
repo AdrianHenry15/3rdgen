@@ -6,11 +6,12 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 
 import Logo from "@/public/logos/thirdgenstudios-logo.png";
-import { NavMenuTypeItems } from "@/lib/constants";
+import { NavMenuItems, NavMenuTypeItems } from "@/lib/constants";
 import { NavMenuType } from "@/lib/types";
 import Button from "@/components/button";
 import MobileMenu from "./mobile-menu";
 import Cart from "../cart/cart";
+import { Protect, useAuth } from "@clerk/nextjs";
 
 const UserIcon = dynamic(() => import("@/components/layout/navbar/user-icon/user-icon"), { ssr: false });
 
@@ -46,6 +47,13 @@ export default function Navbar(props: INavbarProps) {
                                 }`}
                                 key={item.title}
                             >
+                                {item.title === NavMenuItems.UPLOAD && (
+                                    <Protect role="org:role">
+                                        <Link href={item.link} className="">
+                                            {item.title}
+                                        </Link>
+                                    </Protect>
+                                )}
                                 <Link href={item.link} className="">
                                     {item.title}
                                 </Link>
