@@ -1,29 +1,17 @@
+import { PrismaSongType, S3FileRef } from "@/lib/types";
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
+import { uploadFileToS3 } from "s3-operations/createS3Operations";
+import path from "path";
 
 const prisma = new PrismaClient();
-
-interface TrackData {
-    title: string;
-    artist: string;
-    genre: string;
-    releaseDate: string;
-    file: {
-        bucket: string;
-        key: string;
-        metadata: {
-            duration: number;
-        };
-    };
-}
 
 // GET ALL SONGS
 export async function GET(request: Request) {
     try {
         const songs = await prisma.song.findMany({
             include: {
-                file: true, // Include the associated S3TrackDataRef information
-                Artist: true, // Include the associated Artist information
+                audioFile: true, // Include the associated S3TrackDataRef information
             },
         });
         return Response.json(songs);
@@ -34,10 +22,21 @@ export async function GET(request: Request) {
 }
 
 // CREATE A TRACK
-export async function POST(request: NextApiRequest, response: NextApiResponse) {
+export default async function POST(request: NextApiRequest, response: NextApiResponse) {
     try {
-        // Extract track data from request body
-        const { title, artist, genre, releaseDate, file }: TrackData = request.body;
+        const { title, bpm, artist, genre, price, plays, releaseDate, audioFile, img }: PrismaSongType = request.body;
+
+        // Upload audio file to S3
+        const audioFilePath = audioFile.key;
+        const audioBucketName = audioFile.bucket;
+        const audioFolderName = "audio";
+        await uploadFileToS3(audioFilePath, audioBucketName, audioFolderName);
+
+        // Upload image file to S3
+        const imgFilePath = img.key;
+        const imgBucketName = img.bucket;
+        const imgFolderName = "images";
+        await uploadFileToS3(imgFilePath, imgBucketName, imgFolderName);
 
         // Create the track in the database
         const createdTrack = await prisma.song.create({
@@ -45,28 +44,36 @@ export async function POST(request: NextApiRequest, response: NextApiResponse) {
                 title,
                 artist,
                 genre,
+                price,
+                bpm,
+                plays,
                 releaseDate,
-                file: {
+                audioFile: {
                     create: {
-                        bucket: file.bucket,
-                        key: file.key,
+                        bucket: audioBucketName,
+                        key: `${audioFolderName}/${path.basename(audioFilePath)}`,
                         metadata: {
                             create: {
-                                duration: file.metadata.duration,
+                                duration: audioFile.metadata!.duration,
                             },
                         },
                     },
                 },
+                img: {
+                    create: {
+                        bucket: imgBucketName,
+                        key: `${imgFolderName}/${path.basename(imgFilePath)}`,
+                    },
+                },
             },
             include: {
-                file: true,
+                audioFile: true,
             },
         });
 
-        // Return the created track as JSON response
-        return Response.json(createdTrack);
+        return response.json(createdTrack);
     } catch (error) {
         console.error("Error creating track:", error);
-        return new Response("Failed to create track", { status: 500 });
+        return response.status(500).json({ error: "Failed to create track" });
     }
 }

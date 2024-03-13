@@ -1,10 +1,16 @@
-import AWS from "aws-sdk";
-import fs from "fs";
-import path from "path"; // Import the path module
+import AWS from "aws-sdk"; // Importing AWS SDK
+import fs from "fs"; // Importing fs module for file system operations
+import path from "path"; // Importing the path module for path manipulation
 
-const s3 = new AWS.S3();
+const s3 = new AWS.S3(); // Creating an instance of the S3 service
 
-// CREATE FILE
+/**
+ * Uploads a file to an S3 bucket within a specified folder.
+ * @param filePath - The path to the local file to be uploaded.
+ * @param bucketName - The name of the S3 bucket.
+ * @param folderName - The name of the folder within the bucket.
+ * @returns Promise<void> - A promise that resolves when the file is uploaded successfully.
+ */
 export async function uploadFileToS3(filePath: string, bucketName: string, folderName: string): Promise<void> {
     try {
         // Check if the folder exists, if not, create it
@@ -13,22 +19,27 @@ export async function uploadFileToS3(filePath: string, bucketName: string, folde
             await createFolderInS3(bucketName, folderName);
         }
 
-        const fileContent = fs.readFileSync(filePath);
+        const fileContent = fs.readFileSync(filePath); // Read file content
 
         const params = {
             Bucket: bucketName,
             Key: `${folderName}/${path.basename(filePath)}`, // Specify the folder name in the key
-            Body: fileContent,
+            Body: fileContent, // File content
         };
 
-        await s3.upload(params).promise();
+        await s3.upload(params).promise(); // Upload file to S3
         console.log(`File uploaded successfully to ${bucketName}/${folderName}`);
     } catch (error) {
-        console.error("Error uploading file to S3:", error);
+        console.error("Error uploading file to S3:", error); // Log error if any
     }
 }
 
-// CREATE FOLDER
+/**
+ * Creates a folder in an S3 bucket.
+ * @param bucketName - The name of the S3 bucket.
+ * @param folderName - The name of the folder to be created.
+ * @returns Promise<void> - A promise that resolves when the folder is created successfully.
+ */
 async function createFolderInS3(bucketName: string, folderName: string): Promise<void> {
     try {
         const params = {
@@ -37,14 +48,19 @@ async function createFolderInS3(bucketName: string, folderName: string): Promise
             Body: "", // Empty body for a folder
         };
 
-        await s3.upload(params).promise();
+        await s3.upload(params).promise(); // Upload empty object to create folder
         console.log(`Folder '${folderName}' created successfully in bucket '${bucketName}'`);
     } catch (error) {
-        console.error("Error creating folder in S3:", error);
+        console.error("Error creating folder in S3:", error); // Log error if any
     }
 }
 
-// CHECK IF FOLDER EXISTS
+/**
+ * Checks if a folder exists in an S3 bucket.
+ * @param bucketName - The name of the S3 bucket.
+ * @param folderName - The name of the folder to be checked.
+ * @returns Promise<boolean> - A promise that resolves to true if the folder exists, otherwise false.
+ */
 async function doesFolderExist(bucketName: string, folderName: string): Promise<boolean> {
     try {
         const params = {
@@ -53,10 +69,10 @@ async function doesFolderExist(bucketName: string, folderName: string): Promise<
             MaxKeys: 1, // Limit the number of keys returned to check if the folder exists
         };
 
-        const data = await s3.listObjectsV2(params).promise();
-        return data.Contents !== undefined && data.Contents.length > 0;
+        const data = await s3.listObjectsV2(params).promise(); // List objects in folder
+        return data.Contents !== undefined && data.Contents.length > 0; // Check if any objects are returned
     } catch (error) {
-        console.error("Error checking if folder exists in S3:", error);
+        console.error("Error checking if folder exists in S3:", error); // Log error if any
         return false;
     }
 }
@@ -66,4 +82,4 @@ async function doesFolderExist(bucketName: string, folderName: string): Promise<
 // const bucketName = 'your-bucket-name';
 // const folderName = 'your-folder-name';
 
-// updateFileOrFolderInS3(filePath, bucketName, folderName);
+// uploadFileToS3(filePath, bucketName, folderName);

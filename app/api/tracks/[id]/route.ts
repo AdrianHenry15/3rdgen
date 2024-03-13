@@ -1,22 +1,9 @@
+import { PrismaSongType, SongType } from "@/lib/types";
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSingleFileFromBucket } from "s3-operations/getS3Operations";
 
 const prisma = new PrismaClient();
-
-interface TrackData {
-    title: string;
-    artist: string;
-    genre: string;
-    releaseDate: string;
-    file: {
-        bucket: string;
-        key: string;
-        metadata: {
-            duration: number;
-        };
-    };
-}
 
 // GET SONG BY ID
 export async function GET(request: Request, id: string) {
@@ -24,7 +11,7 @@ export async function GET(request: Request, id: string) {
         const song = await prisma.song.findUnique({
             where: { id: id },
             include: {
-                file: {
+                audioFile: {
                     include: { metadata: true }, // Include S3 metadata
                 },
                 Artist: true,
@@ -33,7 +20,7 @@ export async function GET(request: Request, id: string) {
 
         if (song) {
             // Access S3 file data
-            const s3FileData = song.file;
+            const s3FileData = song.audioFile;
 
             // Fetch content from S3
             const s3FileContent = await getSingleFileFromBucket(s3FileData.bucket, s3FileData.key);
@@ -67,30 +54,35 @@ export async function PUT(request: NextApiRequest, response: NextApiResponse) {
 
     try {
         // Extract updated track data from request body
-        const { title, artist, genre, releaseDate, file }: TrackData = request.body;
+        const { title, genre, releaseDate, audioFile, img }: PrismaSongType = request.body;
 
         // Update the track in the database
         const updatedTrack = await prisma.song.update({
             where: { id }, // Specify the track ID to update
             data: {
                 title,
-                artist,
                 genre,
                 releaseDate,
-                file: {
+                audioFile: {
                     update: {
-                        bucket: file.bucket,
-                        key: file.key,
+                        bucket: audioFile.bucket,
+                        key: audioFile.key,
                         metadata: {
                             update: {
-                                duration: file.metadata.duration,
+                                duration: audioFile.metadata!.duration,
                             },
                         },
                     },
                 },
+                img: {
+                    update: {
+                        bucket: img.bucket,
+                        key: img.key,
+                    },
+                },
             },
             include: {
-                file: true,
+                audioFile: true,
             },
         });
 

@@ -8,36 +8,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model S3TrackDataRef {
+model S3SongDataRef {
   id         String          @id @default(auto()) @map("_id") @db.ObjectId
   bucket     String
   key        String
-  metadata   S3TrackMetadata @relation(fields: [metadataId], references: [id])
-  metadataId String          @db.ObjectId
+  content    String?
+  metadata   S3SongMetadata? @relation(fields: [metadataId], references: [id])
+  metadataId String?         @db.ObjectId
   Song       Song[]
 }
 
-model S3TrackMetadata {
-  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+model S3SongMetadata {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
   duration  Int
-  S3DataRef S3TrackDataRef[]
+  S3DataRef S3SongDataRef[]
 }
 
 model Song {
   id          String         @id @default(auto()) @map("_id") @db.ObjectId
-  img         String?
+  img         S3ImageDataRef @relation(fields: [imgId], references: [id])
+  imgId       String         @db.ObjectId
   title       String
-  album       String?
-  artist      String
+  albumName   String?
+  artist      String?
+  price       Int
   genre       String?
   releaseDate String?
   bpm         String?
   plays       Int            @default(0)
-  file        S3TrackDataRef @relation(fields: [fileId], references: [id])
-  fileId      String         @db.ObjectId
-  Artist      Artist?        @relation(fields: [artistId], references: [id])
-  artistId    String?        @db.ObjectId
+  audioFile   S3SongDataRef  @relation(fields: [audioFileId], references: [id])
+  audioFileId String         @db.ObjectId
   createdAt   DateTime       @default(now())
+}
+
+model S3ImageDataRef {
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  bucket String
+  key    String
+  Song   Song[]
+  Artist Artist[]
 }
 
 model User {
@@ -50,12 +59,12 @@ model User {
 }
 
 model Artist {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  img         String
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  img         S3ImageDataRef @relation(fields: [imgId], references: [id])
+  imgId       String         @db.ObjectId
   title       String
   description String
-  songs       Song[]
-  createdAt   DateTime @default(now())
+  createdAt   DateTime       @default(now())
 }
 
 enum TransactionType {

@@ -1,4 +1,4 @@
-import { S3File } from "@/lib/types";
+import { S3FileRef } from "@/lib/types";
 import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express"; // Assuming you are using Express
 import { getAllFilesFromFolder } from "s3-operations/getS3Operations";
@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 export async function GET(request: Request, response: Response, bucketName: string, folder: string) {
     try {
         // Get all files from the specified folder in the S3 bucket
-        const s3Files: S3File[] = await getAllFilesFromFolder(bucketName, folder);
+        const s3Files: S3FileRef[] = await getAllFilesFromFolder(bucketName, folder);
 
         if (s3Files.length === 0) {
             return response.status(404).json({ message: `No files found in folder '${folder}'` });
@@ -21,7 +21,7 @@ export async function GET(request: Request, response: Response, bucketName: stri
                 const song = await prisma.song.findUnique({
                     where: { id: s3File.key }, // Assuming the song ID is the same as the S3 file key
                     include: {
-                        file: {
+                        audioFile: {
                             include: { metadata: true },
                         },
                         Artist: true,
