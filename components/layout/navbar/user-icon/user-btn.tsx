@@ -7,12 +7,13 @@ import { Popover, Transition } from "@headlessui/react";
 
 import { PiGearSixLight, PiSignOut } from "react-icons/pi";
 
+import UserFill from "@/public/misc/user.png";
 import UserPopoverPanelItem from "./user-popover-panel-item";
 
 const UserBtn = () => {
-    const { user, isSignedIn } = useUser();
+    const { user, isSignedIn, isLoaded } = useUser();
     const { signOut } = useClerk();
-    const image = user?.hasImage ? user.imageUrl : "";
+    const image = !isLoaded || !user?.hasImage ? UserFill : user.imageUrl;
 
     return (
         <div className="top-16 w-full max-w-sm flex text-center h-full mx-4">
@@ -35,7 +36,7 @@ const UserBtn = () => {
                             leaveFrom="opacity-100 translate-y-0"
                             leaveTo="opacity-0 translate-y-1"
                         >
-                            <Popover.Panel className="absolute z-10 mt-1 w-screen max-w-sm -translate-x-[350px] transform ml-4">
+                            <Popover.Panel className="absolute z-10 mt-1 w-screen max-w-sm -translate-x-[350px] md:-translate-x-[360px] transform ml-4">
                                 <div className="flex flex-col relative rounded-lg shadow-lg shadow-black bg-white p-6">
                                     <div className="flex items-center mb-4">
                                         <span className="mr-4">
