@@ -62,13 +62,14 @@ export default function Navbar(props: INavbarProps) {
                         <Button className="animate-pulse mx-4" roundedFull name="Get Your Free Estimate" />
                     </Link>
                 </ul>
-                {/* USER ICON */}
                 <div className="flex items-center absolute top-1 right-4 md:top-1 md:right-1 xl:relative">
-                    <div className="flex items-center lg:mb-1">
-                        <Cart />
-                    </div>
+                    {/* USER ICON */}
                     <div className="hidden md:flex">
                         <UserIcon />
+                    </div>
+                    {/* CART */}
+                    <div className="flex items-center lg:mb-1">
+                        <Cart />
                     </div>
                 </div>
             </div>
