@@ -7,13 +7,11 @@ import { Popover, Transition } from "@headlessui/react";
 
 import { PiGearSixLight, PiSignOut } from "react-icons/pi";
 
-import UserFill from "@/public/misc/user.png";
 import UserPopoverPanelItem from "./user-popover-panel-item";
 
 const UserBtn = () => {
-    const { user, isSignedIn, isLoaded } = useUser();
+    const { user, isSignedIn } = useUser();
     const { signOut } = useClerk();
-    const image = !isLoaded || !user?.hasImage ? UserFill : user.imageUrl;
 
     return (
         <div className="top-16 w-full max-w-sm flex text-center h-full mx-4">
@@ -23,7 +21,7 @@ const UserBtn = () => {
                         <Popover.Button>
                             {isSignedIn && (
                                 <span className="flex items-center justify-center hover:bg-zinc-500 hover:scale-125 hover:rounded-full transition-all duration-300 ease-in-out">
-                                    <Image className="rounded-full" width={25} height={25} src={image!} alt="user-image" />
+                                    <Image className="rounded-full" width={25} height={25} src={user.imageUrl} alt="user-image" />
                                 </span>
                             )}
                         </Popover.Button>
@@ -40,7 +38,7 @@ const UserBtn = () => {
                                 <div className="flex flex-col relative rounded-lg shadow-lg shadow-black bg-white p-6">
                                     <div className="flex items-center mb-4">
                                         <span className="mr-4">
-                                            <Image className="rounded-full" width={40} height={40} src={image!} alt="user-image" />
+                                            <Image className="rounded-full" width={40} height={40} src={user!.imageUrl} alt="user-image" />
                                         </span>
                                         <div>
                                             <div className="flex items-center">

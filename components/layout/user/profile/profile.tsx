@@ -1,5 +1,5 @@
 import React from "react";
-import MobileProfile from "./mobile-picture/mobile-profile";
+import MobileProfile from "./mobile-profile/mobile-profile";
 
 const Profile = () => {
     return (
