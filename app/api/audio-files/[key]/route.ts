@@ -11,7 +11,7 @@ const s3 = new S3Client({
     },
 });
 
-export async function GET(_: Request, { params }: { params: { key: string } }) {
+export async function GET(request: Request, { params }: { params: { key: string } }) {
     const command = new GetObjectCommand({ Bucket, Key: params.key });
     const src = await getSignedUrl(s3, command, { expiresIn: 3600 });
 

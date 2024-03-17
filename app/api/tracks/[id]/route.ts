@@ -1,95 +1,74 @@
-import { PrismaSongType, SongType } from "@/lib/types";
-import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getSingleFileFromBucket } from "s3-operations/getS3Operations";
+import { PrismaClient } from "@prisma/client";
+import { SongType } from "@/lib/types";
 
 const prisma = new PrismaClient();
 
-// GET SONG BY ID
-export async function GET(request: Request, id: string) {
+// Get a single song by ID
+export async function GET(request: NextApiRequest, response: NextApiResponse) {
     try {
+        const songId = request.query.id as string;
+
+        // Retrieve the song from the database
         const song = await prisma.song.findUnique({
-            where: { id: id },
-            include: {
-                audioFile: {
-                    include: { metadata: true }, // Include S3 metadata
-                },
-                Artist: true,
+            where: {
+                id: songId,
             },
         });
 
-        if (song) {
-            // Access S3 file data
-            const s3FileData = song.audioFile;
-
-            // Fetch content from S3
-            const s3FileContent = await getSingleFileFromBucket(s3FileData.bucket, s3FileData.key);
-
-            if (s3FileContent) {
-                // Merge S3 file content with song data
-                const songWithS3Data = {
-                    ...song,
-                    file: {
-                        ...s3FileData,
-                        content: s3FileContent.content, // Add S3 file content to song file data
-                    },
-                };
-
-                return new Response(JSON.stringify(songWithS3Data), { status: 200, headers: { "Content-Type": "application/json" } });
-            } else {
-                return new Response("Failed to fetch S3 file content", { status: 500 });
-            }
-        } else {
-            return new Response("Song not found", { status: 404 });
+        if (!song) {
+            return response.status(404).json({ error: "Song not found" });
         }
+
+        return response.json(song);
     } catch (error) {
         console.error("Error fetching song:", error);
-        return new Response("Failed to fetch song", { status: 500 });
+        return response.status(500).json({ error: "Failed to fetch song" });
     }
 }
 
-// UPDATE TRUCK
-export async function PUT(request: NextApiRequest, response: NextApiResponse) {
-    const { id } = request.query as { id: string }; // Extract track ID from request params
-
+// Create a new song
+export default async function POST(request: NextApiRequest, response: NextApiResponse) {
     try {
-        // Extract updated track data from request body
-        const { title, genre, releaseDate, audioFile, img }: PrismaSongType = request.body;
+        const { title, album_name, artist, price, genre, release_date, bpm, img, audio_file }: SongType = request.body;
 
-        // Update the track in the database
-        const updatedTrack = await prisma.song.update({
-            where: { id }, // Specify the track ID to update
+        // Create the song in the database
+        const createdSong = await prisma.song.create({
             data: {
                 title,
+                album_name,
+                artist,
+                price,
                 genre,
-                releaseDate,
-                audioFile: {
-                    update: {
-                        bucket: audioFile.bucket,
-                        key: audioFile.key,
-                        metadata: {
-                            update: {
-                                duration: audioFile.metadata!.duration,
-                            },
-                        },
-                    },
-                },
-                img: {
-                    update: {
-                        bucket: img.bucket,
-                        key: img.key,
-                    },
-                },
-            },
-            include: {
-                audioFile: true,
+                release_date,
+                bpm,
+                img,
+                audio_file,
             },
         });
 
-        // Return the updated track as JSON response
-        return Response.json(updatedTrack);
+        return response.json(createdSong);
     } catch (error) {
-        console.error("Error updating track:", error);
-        return Response.json({ error: "Failed to update track" });
+        console.error("Error creating song:", error);
+        return response.status(500).json({ error: "Failed to create song" });
+    }
+}
+
+// Delete an existing song by ID
+export async function DELETE(request: NextApiRequest, response: NextApiResponse) {
+    try {
+        const songId = request.query.id as string;
+
+        // Delete the song from the database
+        await prisma.song.delete({
+            where: {
+                id: songId,
+            },
+        });
+
+        return response.status(204).end(); // No content response
+    } catch (error) {
+        console.error("Error deleting song:", error);
+        return response.status(500).json({ error: "Failed to delete song" });
     }
 }
