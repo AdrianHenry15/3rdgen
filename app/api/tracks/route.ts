@@ -1,7 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { SongType } from "@/lib/types";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
@@ -13,35 +12,50 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(songs);
     } catch (error) {
         console.error("Error fetching songs:", error);
-        return NextResponse.json({ error: "Failed to fetch songs" });
+        return NextResponse.json({ error: "Failed to fetch songs" }, { status: 500 });
     }
 }
 
-export async function POST(req: NextApiRequest, res: NextResponse) {
+export async function POST(request: NextRequest) {
     try {
-        const body: SongType = req.body;
+        const {
+            title,
+            img,
+            price,
+            artist,
+            audio_file,
+            album_name,
+            genre,
+            release_date,
+            backdrop_path,
+            plays,
+            bpm,
+            song_key,
+            created_at,
+        }: SongType = await request.json();
 
         // Create the song in the database
         const createdSong = await prisma.song.create({
             data: {
-                title: body.title,
-                img: body.img,
-                price: body.price ?? 0, // Default value if not provided
-                artist: body.artist,
-                audio_file: body.audio_file,
-                album_name: body.album_name,
-                genre: body.genre,
-                release_date: body.release_date,
-                backdrop_path: body.backdrop_path,
-                plays: body.plays ?? 0, // Default value if not provided
-                bpm: body.bpm,
-                song_key: body.song_key,
+                title,
+                img,
+                price, // Default value if not provided
+                artist,
+                audio_file,
+                album_name,
+                genre,
+                release_date,
+                backdrop_path,
+                plays, // Default value if not provided
+                bpm,
+                song_key,
+                created_at,
             },
         });
 
         return NextResponse.json(createdSong);
     } catch (error) {
         console.error("Error creating song:", error);
-        return NextResponse.json({ error: "Failed to create song" });
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

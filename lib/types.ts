@@ -27,6 +27,7 @@ export type SongType = {
     plays?: number;
     bpm?: string;
     song_key?: string;
+    created_at?: Date;
 };
 
 export type ArtistType = {
