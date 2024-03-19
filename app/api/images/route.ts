@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-
-import { S3Client, ListObjectsCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { NextResponse } from "next/server";
+import { GetObjectCommand, ListObjectsCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { uploadFileToS3 } from "s3-operations/createS3Operations";
 
 const Bucket = process.env.AWS_IMAGE_BUCKET as string;
 const s3 = new S3Client({
@@ -17,18 +18,29 @@ export async function GET() {
     return NextResponse.json(response?.Contents ?? []);
 }
 
-// endpoint to upload a file to the bucket
-export async function POST(request: NextRequest) {
-    const formData = await request.formData();
-    const files = formData.getAll("file") as File[];
+export async function POST(request: Request) {
+    try {
+        const formData = await request.formData();
+        const file = formData.get("file") as File;
 
-    const response = await Promise.all(
-        files.map(async (file) => {
-            // not sure why I have to override the types here
-            const Body = (await file.arrayBuffer()) as Buffer;
-            s3.send(new PutObjectCommand({ Bucket, Key: file.name, Body }));
-        })
-    );
+        if (!file) {
+            return NextResponse.json(new Error("No file uploaded"), { status: 400 });
+        }
 
-    return NextResponse.json(response);
+        // Convert the File to a Buffer
+        const buffer = await file.arrayBuffer();
+        const fileContent = Buffer.from(buffer);
+
+        // Upload the file to S3
+        await uploadFileToS3(fileContent, file.name, Bucket);
+
+        // Get the signed URL for the uploaded file
+        const src = await getSignedUrl(s3, new GetObjectCommand({ Bucket, Key: file.name }), { expiresIn: 3600 });
+
+        // Respond with success message and signed URL
+        return NextResponse.json({ message: "Object uploaded successfully.", src });
+    } catch (error) {
+        console.error("Error uploading object:", error);
+        return NextResponse.json({ error: "Failed to upload object." }, { status: 500 });
+    }
 }

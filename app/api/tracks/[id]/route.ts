@@ -25,33 +25,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 }
 
-// Create a new song
-export default async function POST(request: NextRequest) {
-    try {
-        const { title, album_name, artist, price, genre, release_date, bpm, img, audio_file }: SongType = await request.json();
-
-        // Create the song in the database
-        const createdSong = await prisma.song.create({
-            data: {
-                title,
-                album_name,
-                artist,
-                price,
-                genre,
-                release_date,
-                bpm,
-                img,
-                audio_file,
-            },
-        });
-
-        return NextResponse.json(createdSong);
-    } catch (error) {
-        console.error("Error creating song:", error);
-        return NextResponse.json({ error: "Failed to create song" }, { status: 500 });
-    }
-}
-
 // Delete an existing song by ID
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
     try {

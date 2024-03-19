@@ -1,6 +1,5 @@
 import AWS from "aws-sdk"; // Importing AWS SDK
-import fs from "fs"; // Importing fs module for file system operations
-import path from "path"; // Importing the path module for path manipulation
+import { Readable } from "stream";
 
 const s3 = new AWS.S3(); // Creating an instance of the S3 service
 
@@ -11,26 +10,26 @@ const s3 = new AWS.S3(); // Creating an instance of the S3 service
  * @param folderName - The name of the folder within the bucket.
  * @returns Promise<void> - A promise that resolves when the file is uploaded successfully.
  */
-export async function uploadFileToS3(filePath: string, bucketName: string, folderName: string): Promise<void> {
+export async function uploadFileToS3(fileContent: Buffer, fileName: string, bucketName: string): Promise<void> {
     try {
-        // Check if the folder exists, if not, create it
-        const folderExists = await doesFolderExist(bucketName, folderName);
-        if (!folderExists) {
-            await createFolderInS3(bucketName, folderName);
-        }
+        // Create a Readable stream from the file content
+        const fileStream = new Readable();
+        fileStream.push(fileContent);
+        fileStream.push(null); // End of file
 
-        const fileContent = fs.readFileSync(filePath); // Read file content
-
+        // Specify the S3 upload parameters
         const params = {
             Bucket: bucketName,
-            Key: `${folderName}/${path.basename(filePath)}`, // Specify the folder name in the key
-            Body: fileContent, // File content
+            Key: fileName, // Specify the folder name in the key
+            Body: fileStream, // File content as a stream
         };
 
-        await s3.upload(params).promise(); // Upload file to S3
-        console.log(`File uploaded successfully to ${bucketName}/${folderName}`);
+        // Upload the file to S3
+        await s3.upload(params).promise();
+        console.log(`File uploaded successfully to ${bucketName}`);
     } catch (error) {
-        console.error("Error uploading file to S3:", error); // Log error if any
+        console.error("Error uploading file to S3:", error);
+        throw error; // Rethrow the error for handling in the caller function
     }
 }
 
@@ -40,7 +39,7 @@ export async function uploadFileToS3(filePath: string, bucketName: string, folde
  * @param folderName - The name of the folder to be created.
  * @returns Promise<void> - A promise that resolves when the folder is created successfully.
  */
-async function createFolderInS3(bucketName: string, folderName: string): Promise<void> {
+export async function createFolderInS3(bucketName: string, folderName: string): Promise<void> {
     try {
         const params = {
             Bucket: bucketName,
