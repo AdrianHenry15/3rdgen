@@ -128,7 +128,7 @@ export async function DELETE(request: Request, { params }: { params: { key: stri
 
     try {
         await s3.send(command);
-        return NextResponse.json({ message: "Object deleted successfully.", key });
+        return NextResponse.json({ message: `${JSON.stringify(key)} has been deleted successfully.` });
     } catch (error) {
         console.error("Error deleting object:", error);
         return NextResponse.json({ error: "Failed to delete object." }, { status: 500 });

@@ -2,15 +2,7 @@ import { NextResponse } from "next/server";
 import { GetObjectCommand, ListObjectsCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { uploadFileToS3 } from "s3-operations/createS3Operations";
-
-const Bucket = process.env.AWS_AUDIO_FILE_BUCKET as string;
-const s3 = new S3Client({
-    region: process.env.AWS_REGION as string,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
-    },
-});
+import { Bucket, s3 } from "@/config/aws.config";
 
 // endpoint to get the list of files in the bucket
 export async function GET() {
@@ -38,7 +30,7 @@ export async function POST(request: Request) {
         const src = await getSignedUrl(s3, new GetObjectCommand({ Bucket, Key: file.name }), { expiresIn: 3600 });
 
         // Respond with success message and signed URL
-        return NextResponse.json({ message: "Object uploaded successfully.", src });
+        return NextResponse.json({ message: `Object '${file.name}' has been uploaded successfully.`, src });
     } catch (error) {
         console.error("Error uploading object:", error);
         return NextResponse.json({ error: "Failed to upload object." }, { status: 500 });

@@ -6,18 +6,9 @@ import {
     HeadObjectCommand,
     NoSuchKey,
     PutObjectCommand,
-    S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
-const Bucket = process.env.AWS_IMAGE_BUCKET as string;
-const s3 = new S3Client({
-    region: process.env.AWS_REGION as string,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
-    },
-});
+import { Bucket, s3 } from "@/config/aws.config";
 
 async function uploadObject(key: string, data: any): Promise<void> {
     const uploadParams = {
