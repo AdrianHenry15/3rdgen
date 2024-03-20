@@ -1,6 +1,11 @@
+export enum Roles {
+    ADMIN = "admin",
+}
+
 export type NavMenuType = {
     title: string;
     link: string;
+    role?: Roles;
 };
 
 export type WebsiteType = {

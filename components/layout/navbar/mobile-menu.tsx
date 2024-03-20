@@ -11,8 +11,12 @@ import { IoMdPricetags } from "react-icons/io";
 
 import PopoverPanelItem from "./popover-panel-item";
 import UserIcon from "./user-icon/user-icon";
+import { useUser } from "@clerk/nextjs";
+import { MdOutlineFileUpload } from "react-icons/md";
 
 const MobileMenu = () => {
+    const user = useUser().user?.organizationMemberships!;
+
     return (
         <div className="top-16 w-full max-w-sm px-4">
             <Popover className="relative">
@@ -58,7 +62,7 @@ const MobileMenu = () => {
                                             }}
                                             description={"Websites By Devs"}
                                         />
-                                        <PopoverPanelItem
+                                        {/* <PopoverPanelItem
                                             onClick={close}
                                             icon={<IoMdPricetags size={25} />}
                                             page={{
@@ -66,7 +70,18 @@ const MobileMenu = () => {
                                                 link: "/pricing",
                                             }}
                                             description={"Prices For Music & Websites"}
-                                        />
+                                        /> */}
+                                        {user && (
+                                            <PopoverPanelItem
+                                                onClick={close}
+                                                icon={<MdOutlineFileUpload size={25} />}
+                                                page={{
+                                                    title: "Upload",
+                                                    link: "/upload",
+                                                }}
+                                                description={"Upload Tracks"}
+                                            />
+                                        )}
                                     </div>
                                     {/* POPOVER FOOTER */}
                                     <div className="px-4 py-6 mt-4 bg-gray-100 rounded-b-lg flex justify-evenly">

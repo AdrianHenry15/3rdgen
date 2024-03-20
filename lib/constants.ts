@@ -1,4 +1,4 @@
-import { NavMenuType } from "./types";
+import { NavMenuType, Roles } from "./types";
 
 export enum NavMenuItems {
     HOME = "Home",
@@ -21,6 +21,11 @@ export const NavMenuTypeItems: NavMenuType[] = [
     {
         title: NavMenuItems.MUSIC,
         link: "/music",
+    },
+    {
+        title: NavMenuItems.UPLOAD,
+        link: "/upload",
+        role: Roles.ADMIN,
     },
     // {
     //     title: "Pricing",

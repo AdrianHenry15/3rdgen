@@ -7,10 +7,11 @@ import dynamic from "next/dynamic";
 
 import Logo from "@/public/logos/thirdgenstudios-logo.png";
 import { NavMenuTypeItems } from "@/lib/constants";
-import { NavMenuType } from "@/lib/types";
+import { NavMenuType, Roles } from "@/lib/types";
 import Button from "@/components/button";
 import MobileMenu from "./mobile-menu";
 import Cart from "../cart/cart";
+import { useUser } from "@clerk/nextjs";
 
 const UserIcon = dynamic(() => import("@/components/layout/navbar/user-icon/user-icon"), { ssr: false });
 
@@ -20,6 +21,7 @@ interface INavbarProps {
 
 export default function Navbar(props: INavbarProps) {
     const pathname = usePathname();
+    const user = useUser().user?.organizationMemberships!;
 
     return (
         <nav
@@ -39,18 +41,35 @@ export default function Navbar(props: INavbarProps) {
                     </Link>
                     {/* LINKS  */}
                     <ul className="hidden text-white items-center xl:flex">
-                        {NavMenuTypeItems.map((item: NavMenuType) => (
-                            <li
-                                className={`mx-2 transition-all duration-300 ease-in-out hover:text-red-700 hover:underline ${
-                                    pathname === item.link ? "underline" : ""
-                                }`}
-                                key={item.title}
-                            >
-                                <Link href={item.link} className="">
-                                    {item.title}
-                                </Link>
-                            </li>
-                        ))}
+                        {NavMenuTypeItems.map((item: NavMenuType) =>
+                            // Conditionally render based on userRole and item.role
+                            user && item.role === Roles.ADMIN ? (
+                                <li
+                                    className={`mx-2 transition-all duration-300 ease-in-out hover:text-red-700 hover:underline ${
+                                        pathname === item.link ? "underline" : ""
+                                    }`}
+                                    key={item.title}
+                                >
+                                    <Link href={item.link} className="">
+                                        {item.title}
+                                    </Link>
+                                </li>
+                            ) : (
+                                // Render regular nav links
+                                item.role !== Roles.ADMIN && (
+                                    <li
+                                        className={`mx-2 transition-all duration-300 ease-in-out hover:text-red-700 hover:underline ${
+                                            pathname === item.link ? "underline" : ""
+                                        }`}
+                                        key={item.title}
+                                    >
+                                        <Link href={item.link} className="">
+                                            {item.title}
+                                        </Link>
+                                    </li>
+                                )
+                            )
+                        )}
                     </ul>
                 </div>
                 {/* NAV BUTTONS */}
