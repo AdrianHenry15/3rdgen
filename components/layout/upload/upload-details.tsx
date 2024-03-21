@@ -5,11 +5,13 @@ import { BiCamera } from "react-icons/bi";
 
 interface UploadDetailsProps {
     processing: boolean;
+    setProcessing: (processing: boolean) => void; // Callback to update processing state
     defaultSongName: string;
-    onProcessingChange: (processing: boolean) => void; // Callback to update processing state
+    songCount: number; // Total count o songs being tracked
+    trackIndex: number; // Index of current song being processed
 }
 
-const UploadDetails: React.FC<UploadDetailsProps> = ({ processing, defaultSongName, onProcessingChange }) => {
+const UploadDetails: React.FC<UploadDetailsProps> = ({ processing, defaultSongName, setProcessing, songCount, trackIndex }) => {
     const [songName, setSongName] = useState(defaultSongName);
     const [bpm, setBpm] = useState("");
     const [songKey, setSongKey] = useState("");
@@ -18,7 +20,6 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ processing, defaultSongNa
     const [loading, setLoading] = useState(false);
     const [image, setImage] = useState<File | null>(null);
     const [preparationProgress, setPreparationProgress] = useState<number>(0); // State for preparation progress
-    const [processingComplete, setProcessingComplete] = useState<boolean>(false); // State to track processing completion
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -28,7 +29,7 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ processing, defaultSongNa
     // Function to handle cancel
     const handleCancel = () => {
         if (window.confirm("Are you sure you want to cancel?")) {
-            onProcessingChange(false); // Update processing state
+            setProcessing(false); // Update processing state
         }
     };
 
@@ -43,7 +44,7 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ processing, defaultSongNa
                     // Perform actual upload here
                     console.log("Preparation complete. Starting upload...");
                     setLoading(false);
-                    setProcessingComplete(true);
+                    setProcessing(true);
                     return 100;
                 }
                 return prevProgress + 10;
@@ -140,6 +141,11 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ processing, defaultSongNa
                         {loading ? "Uploading..." : "Upload"}
                     </button>
                 </div>
+            </div>
+            {/* Footer */}
+            <div className="flex justify-between items-center p-4 bg-gray-800 text-white">
+                <div>{`Songs: ${songCount}`}</div>
+                <div>{`Current Song: ${trackIndex + 1}`}</div> {/* Index starts from 0 */}
             </div>
         </div>
     );

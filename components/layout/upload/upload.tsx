@@ -4,43 +4,53 @@ import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import UploadDetails from "./upload-details";
 
+interface TrackDetails {
+    id: number;
+    songName: string;
+    processing: boolean;
+    defaultSongName: string;
+}
+
 const Upload: React.FC = () => {
-    const [tracks, setTracks] = useState<string[]>([]);
-    const [processing, setProcessing] = useState(false);
-    const [defaultSongName, setDefaultSongName] = useState("");
+    const [tracks, setTracks] = useState<TrackDetails[]>([]);
+    const [nextTrackId, setNextTrackId] = useState(1); // To generate unique IDs for tracks
 
     const preprocessSongName = (fileName: string) => {
         // Remove dashes and capitalize the start of each word
         return fileName.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
     };
 
-    // Function to handle processing change
-    const handleProcessingChange = (processing: boolean) => {
-        setProcessing(processing);
+    const handleProcessingChange = (id: number, processing: boolean) => {
+        setTracks((prevTracks) => prevTracks.map((track) => (track.id === id ? { ...track, processing } : track)));
     };
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        const newTracks = acceptedFiles.map((file) => {
-            const parts = file.name.split("-");
-            return parts[0];
-        });
-        setTracks((prevTracks) => [...prevTracks, ...newTracks]);
-        setProcessing(true); // Set uploading to true when files are dropped
-
-        // Set default song name to the name of the first accepted audio file
-        if (acceptedFiles.length > 0) {
-            const fileName = acceptedFiles[0].name;
-            const songNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf(".")); // Extract file name without extension
-            const processedSongName = preprocessSongName(songNameWithoutExtension);
-            setDefaultSongName(processedSongName);
-        }
-    }, []);
+    const onDrop = useCallback(
+        (acceptedFiles: File[]) => {
+            acceptedFiles.forEach((file) => {
+                const parts = file.name.split("-");
+                const songName = parts[0];
+                const defaultSongName = preprocessSongName(songName);
+                setTracks((prevTracks) => [
+                    ...prevTracks,
+                    {
+                        id: nextTrackId,
+                        songName,
+                        processing: true,
+                        defaultSongName,
+                    },
+                ]);
+                setNextTrackId((prevId) => prevId + 1);
+            });
+        },
+        [nextTrackId]
+    );
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
     return (
-        <div className="relative md:flex md:justify-evenly">
-            {!processing && (
+        <div className="relative flex justify-evenly flex-col">
+            {/* DRAG AND DROP */}
+            {!tracks.some((item) => item.processing) && (
                 <div className="h-screen flex justify-center items-center">
                     <div
                         {...getRootProps()}
@@ -51,8 +61,18 @@ const Upload: React.FC = () => {
                     </div>
                 </div>
             )}
-            {tracks.length > 0 && processing && (
-                <UploadDetails defaultSongName={defaultSongName} processing={processing} onProcessingChange={handleProcessingChange} />
+            {/* TRACK DETAILS */}
+            {tracks.map((track, index) =>
+                !track.processing ? (
+                    <UploadDetails
+                        key={track.id}
+                        defaultSongName={track.defaultSongName}
+                        processing={track.processing}
+                        setProcessing={(processing) => handleProcessingChange(track.id, processing)}
+                        songCount={tracks.length}
+                        trackIndex={index}
+                    />
+                ) : null
             )}
         </div>
     );
