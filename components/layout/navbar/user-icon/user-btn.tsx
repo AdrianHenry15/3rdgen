@@ -15,7 +15,7 @@ const UserBtn = () => {
 
     return (
         <div className="top-16 w-full max-w-sm flex text-center h-full mx-4">
-            <Popover className="relative">
+            <Popover className="relative flex items-center">
                 {({ close }) => (
                     <>
                         <Popover.Button>
@@ -34,11 +34,17 @@ const UserBtn = () => {
                             leaveFrom="opacity-100 translate-y-0"
                             leaveTo="opacity-0 translate-y-1"
                         >
-                            <Popover.Panel className="absolute z-10 mt-1 w-screen max-w-sm -translate-x-[350px] md:-translate-x-[360px] transform ml-4">
+                            <Popover.Panel className="absolute z-10 mt-1 w-screen max-w-sm translate-y-[105px] -translate-x-[350px] md:-translate-x-[360px] transform ml-4">
                                 <div className="flex flex-col relative rounded-lg shadow-lg shadow-black bg-white p-6">
                                     <div className="flex items-center mb-4">
-                                        <span className="mr-4">
-                                            <Image className="rounded-full" width={40} height={40} src={user!.imageUrl} alt="user-image" />
+                                        <span className="mr-4 flex items-center">
+                                            <Image
+                                                className="rounded-full flex items-center"
+                                                width={40}
+                                                height={40}
+                                                src={user!.imageUrl}
+                                                alt="user-image"
+                                            />
                                         </span>
                                         <div>
                                             <div className="flex items-center">

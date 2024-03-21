@@ -77,7 +77,7 @@ const MobileMenu = () => {
                                                 icon={<MdOutlineFileUpload size={25} />}
                                                 page={{
                                                     title: "Upload",
-                                                    link: "/upload",
+                                                    link: "/upload/songs",
                                                 }}
                                                 description={"Upload Tracks"}
                                             />

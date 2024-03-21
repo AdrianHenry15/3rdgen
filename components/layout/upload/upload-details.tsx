@@ -1,16 +1,12 @@
 import Image from "next/image";
 import React, { useState } from "react";
+import TrackDetailsInput from "./track-details-input";
+import { BiCamera } from "react-icons/bi";
 
 interface UploadDetailsProps {
     uploading: boolean;
+    defaultSongName: string;
 }
-
-const detailsStyles: React.CSSProperties = {
-    border: "2px dashed #ccc",
-    borderRadius: "4px",
-    padding: "20px",
-    marginBottom: "20px",
-};
 
 const previewStyles: React.CSSProperties = {
     maxWidth: "100%",
@@ -18,10 +14,10 @@ const previewStyles: React.CSSProperties = {
     marginTop: "10px",
 };
 
-const UploadDetails: React.FC<UploadDetailsProps> = ({ uploading }) => {
-    const [songName, setSongName] = useState("");
+const UploadDetails: React.FC<UploadDetailsProps> = ({ uploading, defaultSongName }) => {
+    const [songName, setSongName] = useState(defaultSongName);
     const [bpm, setBpm] = useState("");
-    const [key, setKey] = useState("");
+    const [songKey, setSongKey] = useState("");
     const [genre, setGenre] = useState("");
     const [tags, setTags] = useState("");
     const [image, setImage] = useState<File | null>(null);
@@ -32,15 +28,26 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ uploading }) => {
     };
 
     return (
-        <div className="flex flex-col" style={detailsStyles}>
-            <h2 className="font-semibold text-white text-[30px]">Track Details</h2>
-            <div className="flex items-start">
+        <div className="flex flex-col p-20 rounded-sm border-2 border-dashed border-white w-full lg:w-6/12">
+            <h2 className="font-semibold text-white text-[30px] mb-4 underline underline-offset-4">Track Details</h2>
+            <div className="flex flex-col w-full items-center lg:items-start lg:flex-row">
                 {/* IMAGE */}
-                <div>
+                <div className="relative w-[260px] h-[260px] aspect-square border-black bg-gradient-to-br from-black via-blue-900 to-black">
                     {/* Upload image portion */}
-                    <input type="file" accept="image/*" onChange={handleImageChange} />
+                    <label className="absolute bottom-4 flex mx-auto text-center w-full justify-center">
+                        <div className="bg-white flex items-center text-black px-4 py-2 rounded-md cursor-pointer text-sm">
+                            <BiCamera className="mr-2" size={17} />
+                            <h5>Upload Image</h5>
+                        </div>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="opacity-0 absolute top-0 left-0 h-full w-full cursor-pointer"
+                            onChange={handleImageChange}
+                        />
+                    </label>
                     {/* Display image preview if an image is selected */}
-                    {image && (
+                    {image ? (
                         <div>
                             <Image
                                 width={75}
@@ -51,39 +58,28 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ uploading }) => {
                                 style={previewStyles}
                             />
                         </div>
+                    ) : (
+                        <div className="w-full h-full"></div>
                     )}
                 </div>
-                <div className="flex flex-col">
-                    <div className="flex flex-col items-start">
-                        <label className="font-semibold text-md text-white" htmlFor="song-name">
-                            Song Name:
-                        </label>
-                        <input type="text" placeholder="Song Name" value={songName} onChange={(e) => setSongName(e.target.value)} />
-                    </div>
-                    <div className="flex flex-col items-start">
-                        <label className="font-semibold text-md text-white" htmlFor="song-name">
-                            BPM:
-                        </label>
-                        <input type="text" placeholder="BPM" value={bpm} onChange={(e) => setBpm(e.target.value)} />
-                    </div>
-                    <div className="flex flex-col items-start">
-                        <label className="font-semibold text-md text-white" htmlFor="song-name">
-                            Song Key:
-                        </label>
-                        <input type="text" placeholder="Key" value={key} onChange={(e) => setKey(e.target.value)} />
-                    </div>
-                    <div className="flex flex-col items-start">
-                        <label className="font-semibold text-md text-white" htmlFor="song-name">
-                            Genre:
-                        </label>
-                        <input type="text" placeholder="Genre" value={genre} onChange={(e) => setGenre(e.target.value)} />
-                    </div>
-                    <div className="flex flex-col items-start">
-                        <label className="font-semibold text-md text-white" htmlFor="song-name">
-                            Tags:
-                        </label>
-                        <input type="text" placeholder="Tags" value={tags} onChange={(e) => setTags(e.target.value)} />
-                    </div>
+                <div className="flex flex-col w-full my-4 lg:my-0 lg:ml-4">
+                    <TrackDetailsInput
+                        label="Song Name:"
+                        htmlFor="song-name"
+                        placeHolder="Song Name"
+                        songName={songName}
+                        setSongName={setSongName}
+                    />
+                    <TrackDetailsInput label="Bpm:" htmlFor="bpm" placeHolder="Bpm" songName={bpm} setSongName={setBpm} />
+                    <TrackDetailsInput
+                        label="Song Key:"
+                        htmlFor="song-key"
+                        placeHolder="Song Key"
+                        songName={songKey}
+                        setSongName={setSongKey}
+                    />
+                    <TrackDetailsInput label="Genre:" htmlFor="genre" placeHolder="Genre" songName={genre} setSongName={setGenre} />
+                    <TrackDetailsInput label="Tags:" htmlFor="tags" placeHolder="Tags" songName={tags} setSongName={setTags} />
                 </div>
             </div>
             {/* Add a loading bar here for file upload progress */}

@@ -24,7 +24,7 @@ export const NavMenuTypeItems: NavMenuType[] = [
     },
     {
         title: NavMenuItems.UPLOAD,
-        link: "/upload",
+        link: "/upload/songs",
         role: Roles.ADMIN,
     },
     // {

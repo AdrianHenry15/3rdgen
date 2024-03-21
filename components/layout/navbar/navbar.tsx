@@ -87,7 +87,7 @@ export default function Navbar(props: INavbarProps) {
                         <UserIcon />
                     </div>
                     {/* CART */}
-                    <div className="flex items-center lg:mb-1">
+                    <div className="flex items-center">
                         <Cart />
                     </div>
                 </div>
