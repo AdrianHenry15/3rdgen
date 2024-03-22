@@ -1,17 +1,20 @@
 import Image from "next/image";
 import React, { useState } from "react";
+
 import TrackDetailsInput from "./track-details-input";
 import { BiCamera } from "react-icons/bi";
+import TrackDetailsPreview from "./track-details-preview";
+import { UploadSequence } from "./upload";
 
 interface UploadDetailsProps {
-    processing: boolean;
-    setProcessing: (processing: boolean) => void; // Callback to update processing state
+    uploadSequence: UploadSequence;
+    setUploadSequence: (uploadSequence: UploadSequence) => void; // Callback to update processing state
     defaultSongName: string;
-    songCount: number; // Total count o songs being tracked
-    trackIndex: number; // Index of current song being processed
+    // songCount: number; // Total count o songs being tracked
+    // trackIndex: number; // Index of current song being processed
 }
 
-const UploadDetails: React.FC<UploadDetailsProps> = ({ processing, defaultSongName, setProcessing, songCount, trackIndex }) => {
+const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSongName, setUploadSequence }) => {
     const [songName, setSongName] = useState(defaultSongName);
     const [bpm, setBpm] = useState("");
     const [songKey, setSongKey] = useState("");
@@ -19,7 +22,7 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ processing, defaultSongNa
     const [tags, setTags] = useState("");
     const [loading, setLoading] = useState(false);
     const [image, setImage] = useState<File | null>(null);
-    const [preparationProgress, setPreparationProgress] = useState<number>(0); // State for preparation progress
+    const [isUploaded, setIsUploaded] = useState(false);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -29,126 +32,112 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ processing, defaultSongNa
     // Function to handle cancel
     const handleCancel = () => {
         if (window.confirm("Are you sure you want to cancel?")) {
-            setProcessing(false); // Update processing state
+            setUploadSequence(UploadSequence.NONE); // Update processing state
         }
     };
 
-    // Function to simulate preparation progress
-    const prepareUpload = () => {
-        setLoading(true);
-        // Simulate preparation progress
-        const timer = setInterval(() => {
-            setPreparationProgress((prevProgress) => {
-                if (prevProgress >= 100) {
-                    clearInterval(timer);
-                    // Perform actual upload here
-                    console.log("Preparation complete. Starting upload...");
-                    setLoading(false);
-                    setProcessing(true);
-                    return 100;
-                }
-                return prevProgress + 10;
-            });
-        }, 500); // Update progress every 500ms
+    const upload = () => {
+        setUploadSequence(UploadSequence.UPLOADED);
     };
 
-    return (
-        <div className="flex flex-col w-full h-full">
-            {/* PROGRESS BAR */}
-            {/* <div className="w-full h-full flex flex-col"> */}
-            {/* Show the current song being processed */}
-            {/* <p className="text-white text-sm">{defaultSongName}</p> */}
-            {/* Add a loading bar here for file upload progress */}
-            {/* <progress
-                    className={`w-full ${processingComplete ? "bg-blue-500" : ""}`} // Conditionally apply background color based on processing completion
-                    value={preparationProgress}
-                    max={100}
-                    style={{ visibility: uploading ? "visible" : "hidden" }}
-                /> */}
-            {/* </div> */}
-
-            <div className="flex flex-col p-20 rounded-sm border-2 border-dashed border-white w-full lg:w-6/12">
-                <h2 className="font-semibold text-white text-[30px] mb-14 underline underline-offset-4">Track Details</h2>
-                <div className="flex flex-col w-full items-center lg:items-start lg:flex-row">
-                    {/* IMAGE */}
-                    <div className="relative w-[260px] h-[260px] aspect-square border-black bg-gradient-to-br from-black via-blue-900 to-black">
-                        {/* Upload image portion */}
-                        <label className="z-20 absolute bottom-4 flex mx-auto text-center w-full justify-center">
-                            <div className="bg-white flex items-center text-black px-4 py-2 rounded-md cursor-pointer text-sm">
-                                <BiCamera className="mr-2" size={17} />
-                                <h5>Upload Image</h5>
-                            </div>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                className="opacity-0 absolute top-0 left-0 h-full w-full cursor-pointer"
-                                onChange={handleImageChange}
-                            />
-                        </label>
-                        {/* Display image preview if an image is selected */}
-                        {image ? (
-                            <div className="w-full flex h-full relative">
-                                <Image
-                                    width={75}
-                                    height={75}
-                                    className="aspect-square w-full h-full object-cover"
-                                    src={URL.createObjectURL(image)}
-                                    alt="Preview"
+    if (isUploaded) {
+        return (
+            <TrackDetailsPreview
+                uploadSequence={uploadSequence}
+                editTrackDetails={() => setIsUploaded(false)}
+                songName={songName}
+                bpm={bpm}
+                songKey={songKey}
+                genre={genre}
+                tags={tags}
+            />
+        );
+    } else {
+        return (
+            <div className="flex flex-col w-full h-full items-center my-4">
+                <div className="flex flex-col rounded-sm border-2 border-dashed border-white w-full p-4 md:p-20 lg:w-[1000px]">
+                    <h2 className="font-semibold text-white text-[30px] mb-14 text-center md:text-start">Track Details</h2>
+                    <div className="flex flex-col w-full items-center md:items-start lg:flex-row">
+                        {/* IMAGE */}
+                        <div className="relative w-[260px] h-[260px] aspect-square border-black bg-gradient-to-br from-black via-blue-900 to-black">
+                            {/* Upload image portion */}
+                            <label className="z-20 absolute bottom-4 flex mx-auto text-center w-full justify-center">
+                                <div className="bg-white flex items-center text-black px-4 py-2 rounded-md cursor-pointer text-sm">
+                                    <BiCamera className="mr-2" size={17} />
+                                    <h5>Upload Image</h5>
+                                </div>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="opacity-0 absolute top-0 left-0 h-full w-full cursor-pointer"
+                                    onChange={handleImageChange}
                                 />
-                            </div>
-                        ) : (
-                            <div className="w-full h-full"></div>
-                        )}
+                            </label>
+                            {/* Display image preview if an image is selected */}
+                            {image ? (
+                                <div className="w-full flex h-full relative">
+                                    <Image
+                                        width={75}
+                                        height={75}
+                                        className="aspect-square w-full h-full object-cover"
+                                        src={URL.createObjectURL(image)}
+                                        alt="Preview"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="w-full h-full"></div>
+                            )}
+                        </div>
+                        <div className="flex flex-col w-full my-4 lg:my-0 lg:ml-4">
+                            <TrackDetailsInput
+                                label="Song Name:"
+                                htmlFor="song-name"
+                                placeHolder="Song Name"
+                                songName={songName}
+                                setSongName={setSongName}
+                            />
+                            <TrackDetailsInput label="Bpm:" htmlFor="bpm" placeHolder="Bpm" songName={bpm} setSongName={setBpm} />
+                            <TrackDetailsInput
+                                label="Song Key:"
+                                htmlFor="song-key"
+                                placeHolder="Song Key"
+                                songName={songKey}
+                                setSongName={setSongKey}
+                            />
+                            <TrackDetailsInput label="Genre:" htmlFor="genre" placeHolder="Genre" songName={genre} setSongName={setGenre} />
+                            <TrackDetailsInput label="Tags:" htmlFor="tags" placeHolder="Tags" songName={tags} setSongName={setTags} />
+                        </div>
                     </div>
-                    <div className="flex flex-col w-full my-4 lg:my-0 lg:ml-4">
-                        <TrackDetailsInput
-                            label="Song Name:"
-                            htmlFor="song-name"
-                            placeHolder="Song Name"
-                            songName={songName}
-                            setSongName={setSongName}
-                        />
-                        <TrackDetailsInput label="Bpm:" htmlFor="bpm" placeHolder="Bpm" songName={bpm} setSongName={setBpm} />
-                        <TrackDetailsInput
-                            label="Song Key:"
-                            htmlFor="song-key"
-                            placeHolder="Song Key"
-                            songName={songKey}
-                            setSongName={setSongKey}
-                        />
-                        <TrackDetailsInput label="Genre:" htmlFor="genre" placeHolder="Genre" songName={genre} setSongName={setGenre} />
-                        <TrackDetailsInput label="Tags:" htmlFor="tags" placeHolder="Tags" songName={tags} setSongName={setTags} />
-                    </div>
-                </div>
-                {/* BUTTONS */}
-                <div className="flex justify-center lg:justify-start mt-8">
-                    {/* Cancel Button */}
-                    <button
-                        onClick={handleCancel}
-                        className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md mr-4"
-                    >
-                        Cancel
-                    </button>
+                    {/* BUTTONS */}
+                    <div className="flex justify-center mt-8">
+                        {/* Cancel Button */}
+                        <button
+                            onClick={handleCancel}
+                            className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md mr-4"
+                        >
+                            Cancel
+                        </button>
 
-                    {/* Upload Button */}
-                    <button
-                        onClick={prepareUpload}
-                        className={`bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md ${
-                            loading ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
-                        disabled={loading}
-                    >
-                        {loading ? "Uploading..." : "Upload"}
-                    </button>
+                        {/* Upload Button */}
+                        <button
+                            onClick={upload}
+                            className={`bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md ${
+                                loading ? "opacity-50 cursor-not-allowed" : ""
+                            }`}
+                            disabled={loading}
+                        >
+                            {loading ? "Uploading..." : "Upload"}
+                        </button>
+                    </div>
                 </div>
+                {/* Footer */}
+                {/* <div className="flex justify-between items-center p-4 bg-gray-800 text-white">
+                    <div>{`Songs: ${songCount}`}</div>
+                    <div>{`Current Song: ${trackIndex + 1}`}</div> 
+                </div> */}
             </div>
-            {/* Footer */}
-            <div className="flex justify-between items-center p-4 bg-gray-800 text-white">
-                <div>{`Songs: ${songCount}`}</div>
-                <div>{`Current Song: ${trackIndex + 1}`}</div> {/* Index starts from 0 */}
-            </div>
-        </div>
-    );
+        );
+    }
 };
 
 export default UploadDetails;

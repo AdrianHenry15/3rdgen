@@ -1,9 +1,9 @@
 import React from "react";
+import { UploadSequence } from "./upload";
 
 interface ITrackDetailsPreviewProps {
-    processingComplete: boolean;
-    onEdit: () => void;
-    onNavigate: () => void;
+    uploadSequence: UploadSequence;
+    editTrackDetails: () => void;
     songName: string;
     bpm: string;
     songKey: string;
@@ -12,9 +12,8 @@ interface ITrackDetailsPreviewProps {
 }
 
 const TrackDetailsPreview: React.FC<ITrackDetailsPreviewProps> = ({
-    processingComplete,
-    onEdit,
-    onNavigate,
+    uploadSequence,
+    editTrackDetails,
     songName,
     bpm,
     songKey,
@@ -23,7 +22,7 @@ const TrackDetailsPreview: React.FC<ITrackDetailsPreviewProps> = ({
 }) => {
     return (
         <>
-            {processingComplete && (
+            {uploadSequence === UploadSequence.UPLOADED && (
                 <div className="mt-8">
                     <h3 className="text-white text-lg font-semibold mb-4">Track Preview</h3>
                     <div className="flex items-center mb-2">
@@ -48,15 +47,12 @@ const TrackDetailsPreview: React.FC<ITrackDetailsPreviewProps> = ({
                     </div>
                     <div className="flex justify-between">
                         <button
-                            onClick={onEdit}
+                            onClick={editTrackDetails}
                             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md mr-4"
                         >
                             Edit
                         </button>
-                        <button
-                            onClick={onNavigate}
-                            className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md"
-                        >
+                        <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md">
                             Go to Track
                         </button>
                     </div>
