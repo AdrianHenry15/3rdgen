@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function HomePage() {
     const LinkClass =
-        "text-white transition-all duration-300 ease-in-out hover:scale-105 hover:text-red-600 font-bold text-6xl md:text-[50px] lg:text-[75px]";
+        "text-white transition-all duration-300 ease-in-out hover:scale-105 hover:text-red-600 font-bold text-xl md:text-[50px] lg:text-[75px]";
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -35,10 +35,10 @@ export default function HomePage() {
     return (
         <section className="bg-black flex flex-col">
             {/* SPLASH */}
-            <HomeSplash />
-            <div ref={containerRef} className="flex flex-col items-center justify-evenly pb-48 md:items-center md:flex-row">
+            {/* <HomeSplash /> */}
+            <div ref={containerRef} className="flex h-screen items-center justify-evenly pb-48 md:items-center">
                 <Link href={"/websites"}>
-                    <h1 className={`${LinkClass} pb-36 md:pb-0`}>Websites</h1>
+                    <h1 className={`${LinkClass}`}>Websites</h1>
                 </Link>
                 <Link href={"/music"}>
                     <h1 className={LinkClass}>Music</h1>

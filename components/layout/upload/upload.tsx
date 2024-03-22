@@ -8,8 +8,8 @@ import UploadDetails from "./upload-details"; // Importing UploadDetails compone
 export enum UploadSequence {
     NONE,
     PROCESSING,
+    SAVED,
     UPLOADED,
-    EDITTING,
 }
 
 // Interface for defining track details
@@ -33,9 +33,18 @@ const Upload: React.FC = () => {
     };
 
     // Function to handle processing change for a track
-    const handleProcessingChange = (id: number, uploadSequence: UploadSequence) => {
+    const handleUploadSequence = (id: number, uploadSequence: UploadSequence) => {
         // Update processing status for the track with given ID
-        setTracks((prevTracks) => prevTracks.map((track) => (track.id === id ? { ...track, uploadSequence } : track)));
+        setTracks((prevTracks) => {
+            const updatedTracks = prevTracks.map((track) => {
+                if (track.id === id) {
+                    console.log(`Track ID: ${id}, Upload Sequence:`, uploadSequence); // Log uploadSequence for the track
+                    return { ...track, uploadSequence };
+                }
+                return track;
+            });
+            return updatedTracks;
+        });
     };
 
     // Callback function for when files are dropped
@@ -82,17 +91,18 @@ const Upload: React.FC = () => {
                 </div>
             )}
             {/* Render track details for each track */}
-            {tracks.map((track, index) =>
-                track.uploadSequence === UploadSequence.PROCESSING ? (
-                    <UploadDetails
-                        key={index}
-                        defaultSongName={track.defaultSongName}
-                        uploadSequence={track.uploadSequence}
-                        setUploadSequence={(uploadSequence) => handleProcessingChange(track.id, uploadSequence)}
-                        // songCount={tracks.length}
-                        // trackIndex={index}
-                    />
-                ) : null
+            {tracks.map(
+                (track, index) =>
+                    track.uploadSequence !== UploadSequence.NONE && (
+                        <UploadDetails
+                            key={track.id}
+                            defaultSongName={track.defaultSongName}
+                            uploadSequence={track.uploadSequence}
+                            setUploadSequence={(uploadSequence) => handleUploadSequence(track.id, uploadSequence)}
+                            // songCount={tracks.length}
+                            // trackIndex={index}
+                        />
+                    )
             )}
         </div>
     );
