@@ -1,5 +1,10 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { UploadSequence } from "./upload";
+import Image from "next/image";
+import { getImageURL } from "helpers/image-api-operations";
+import Plane from "@/public/music/backdrops/plane-backdrop.jpg";
 
 interface ITrackDetailsPreviewProps {
     setUploadSequence: (uploadSequence: UploadSequence) => void;
@@ -7,42 +12,27 @@ interface ITrackDetailsPreviewProps {
     bpm: string;
     songKey: string;
     genre: string;
-    tags: string;
+    img: any;
 }
 
-const TrackDetailsPreview: React.FC<ITrackDetailsPreviewProps> = ({ setUploadSequence, songName, bpm, songKey, genre, tags }) => {
+const TrackDetailsPreview: React.FC<ITrackDetailsPreviewProps> = ({ setUploadSequence, img, songName, bpm, songKey, genre }) => {
+    const image = img ? img : Plane;
     return (
-        <div className="h-screen">
-            <div className="mt-8">
-                <h3 className="text-white text-lg font-semibold mb-4">Track Preview</h3>
-                <div className="flex items-center mb-2">
-                    <span className="text-white mr-2">Song Name:</span>
-                    <span className="text-gray-300">{songName}</span>
+        <div className="flex">
+            {/* IMAGE */}
+            <span>
+                <Image className="aspect-square object-cover w-[80px] mr-2" width={1000} height={1000} src={image} alt="track-img" />
+            </span>
+            {/* NAME AND STUFF */}
+            <div className="flex flex-col">
+                <h5 className="text-white text-sm">{songName}</h5>
+                <div className="flex">
+                    <p className="text-sm text-zinc-500">{`${bpm} ${songKey} ${genre}`}</p>
                 </div>
-                <div className="flex items-center mb-2">
-                    <span className="text-white mr-2">Bpm:</span>
-                    <span className="text-gray-300">{bpm}</span>
-                </div>
-                <div className="flex items-center mb-2">
-                    <span className="text-white mr-2">Song Key:</span>
-                    <span className="text-gray-300">{songKey}</span>
-                </div>
-                <div className="flex items-center mb-2">
-                    <span className="text-white mr-2">Genre:</span>
-                    <span className="text-gray-300">{genre}</span>
-                </div>
-                <div className="flex items-center mb-4">
-                    <span className="text-white mr-2">Tags:</span>
-                    <span className="text-gray-300">{tags}</span>
-                </div>
-                <div className="flex justify-between">
-                    <button
-                        onClick={() => setUploadSequence(UploadSequence.PROCESSING)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md mr-4"
-                    >
+                <div className="flex mt-2">
+                    <p onClick={() => setUploadSequence(UploadSequence.PROCESSING)} className="text-sm mr-2 text-red-500">
                         Edit
-                    </button>
-                    <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md">Go to Track</button>
+                    </p>
                 </div>
             </div>
         </div>

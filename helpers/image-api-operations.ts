@@ -1,5 +1,5 @@
 // Function to FETCH ALL IMAGES in bucket
-async function fetchImages(): Promise<any> {
+export async function fetchImages(): Promise<any> {
     try {
         const response = await fetch("/api/audio-files", {
             method: "GET",
@@ -15,7 +15,7 @@ async function fetchImages(): Promise<any> {
 }
 
 // Function to UPLOAD IMAGE
-async function uploadImage(file: File): Promise<any> {
+export async function uploadImage(file: File): Promise<any> {
     try {
         const formData = new FormData();
         formData.append("file", file);
@@ -39,7 +39,7 @@ async function uploadImage(file: File): Promise<any> {
 // =================================================== BY ID ===================================================
 
 // Define a function to get a signed URL for an object
-async function getSignedURL(key: string): Promise<string> {
+export async function getImageURL(key: string): Promise<string> {
     try {
         const response = await fetch(`/api/audio-files/${key}`, {
             method: "GET",
@@ -56,7 +56,7 @@ async function getSignedURL(key: string): Promise<string> {
 }
 
 // Function to UPDATE IMAGE
-async function updateImage(key: string, data: any, newKey?: string): Promise<any> {
+export async function updateImage(key: string, data: any, newKey?: string): Promise<any> {
     try {
         const headers: { [key: string]: string } = {};
         if (newKey) {
@@ -81,7 +81,7 @@ async function updateImage(key: string, data: any, newKey?: string): Promise<any
 }
 
 // Function to DELETE IMAGE
-async function deleteImage(key: string): Promise<any> {
+export async function deleteImage(key: string): Promise<any> {
     try {
         const response = await fetch(`/api/audio-files/${key}`, {
             method: "DELETE",

@@ -14,6 +14,10 @@ const nextConfig = {
                 protocol: "https",
                 hostname: 'img.clerk.com',
             },
+            {
+                protocol: "https",
+                hostname: "tgs-song-files.s3.us-east-1.amazonaws.com"
+            }
 
         ]
     }

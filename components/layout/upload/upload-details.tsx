@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import React, { useState } from "react";
 
@@ -19,12 +21,18 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSo
     const [bpm, setBpm] = useState("");
     const [songKey, setSongKey] = useState("");
     const [genre, setGenre] = useState("");
-    const [tags, setTags] = useState("");
-    const [image, setImage] = useState<File | null>(null);
+    const [image, setImage] = useState<any | null>(null);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        setImage(file || null);
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                // Once the file is loaded, set the result (data URL) to the component's state
+                setImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     // Function to handle cancel
@@ -38,18 +46,19 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSo
         setUploadSequence(UploadSequence.SAVED);
     };
 
-    return (
+    return uploadSequence === UploadSequence.SAVED ? (
+        <div className="h-screen">
+            <TrackDetailsPreview
+                setUploadSequence={() => setUploadSequence(UploadSequence.PROCESSING)}
+                songName={songName}
+                bpm={bpm}
+                songKey={songKey}
+                genre={genre}
+                img={image}
+            />
+        </div>
+    ) : (
         <div className="flex flex-col w-full h-full items-center my-4">
-            {uploadSequence === UploadSequence.SAVED && (
-                <TrackDetailsPreview
-                    setUploadSequence={() => setUploadSequence(UploadSequence.PROCESSING)}
-                    songName={songName}
-                    bpm={bpm}
-                    songKey={songKey}
-                    genre={genre}
-                    tags={tags}
-                />
-            )}
             <div className="flex flex-col rounded-sm border-2 border-dashed border-white w-full p-4 md:p-20 lg:w-[1000px]">
                 <h2 className="font-semibold text-white text-[30px] mb-14 text-center md:text-start">Track Details</h2>
                 <div className="flex flex-col w-full items-center md:items-start lg:flex-row">
@@ -75,7 +84,7 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSo
                                     width={75}
                                     height={75}
                                     className="aspect-square w-full h-full object-cover"
-                                    src={URL.createObjectURL(image)}
+                                    src={image}
                                     alt="Preview"
                                 />
                             </div>
@@ -100,7 +109,6 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSo
                             setSongName={setSongKey}
                         />
                         <TrackDetailsInput label="Genre:" htmlFor="genre" placeHolder="Genre" songName={genre} setSongName={setGenre} />
-                        <TrackDetailsInput label="Tags:" htmlFor="tags" placeHolder="Tags" songName={tags} setSongName={setTags} />
                     </div>
                 </div>
                 {/* BUTTONS */}

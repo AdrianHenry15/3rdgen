@@ -39,7 +39,7 @@ export async function uploadAudioFile(file: File): Promise<any> {
 // ======================================= BY KEY =======================================
 
 // Define a Function to FETCH a signed URL for an object
-export async function getSignedURL(key: string): Promise<string> {
+export async function getAudioFileURL(key: string): Promise<string> {
     try {
         const response = await fetch(`/api/audio-files/${key}`, {
             method: "GET",
