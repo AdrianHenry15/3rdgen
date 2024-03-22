@@ -2,7 +2,7 @@ import { DeleteObjectCommand, S3Client, ListObjectsV2Command } from "@aws-sdk/cl
 import { NextRequest, NextResponse } from "next/server";
 import { deleteFolderFromS3 } from "s3-operations/deleteS3Operations";
 
-const Bucket = process.env.AWS_AUDIO_FILE_BUCKET as string;
+const Bucket = process.env.AWS_IMAGE_BUCKET as string;
 const s3 = new S3Client({
     region: process.env.AWS_REGION as string,
     credentials: {

@@ -1,4 +1,4 @@
-import { HeadObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 import { createFolderInS3 } from "s3-operations/createS3Operations";
 
