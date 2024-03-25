@@ -12,15 +12,15 @@ interface UploadDetailsProps {
     uploadSequence: UploadSequence;
     setUploadSequence: (uploadSequence: UploadSequence) => void; // Callback to update processing state
     defaultSongName: string;
+    onCancel: () => void;
     // songCount: number; // Total count o songs being tracked
     // trackIndex: number; // Index of current song being processed
 }
 
-const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSongName, setUploadSequence }) => {
+const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSongName, setUploadSequence, onCancel }) => {
     const [songName, setSongName] = useState(defaultSongName);
     const [bpm, setBpm] = useState("");
     const [songKey, setSongKey] = useState("");
-    const [genre, setGenre] = useState("");
     const [image, setImage] = useState<any | null>(null);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +38,7 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSo
     // Function to handle cancel
     const handleCancel = () => {
         if (window.confirm("Are you sure you want to cancel?")) {
-            setUploadSequence(UploadSequence.NONE); // Update processing state
+            onCancel();
         }
     };
 
@@ -53,7 +53,6 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSo
                 songName={songName}
                 bpm={bpm}
                 songKey={songKey}
-                genre={genre}
                 img={image}
             />
         </div>
@@ -108,7 +107,6 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSo
                             songName={songKey}
                             setSongName={setSongKey}
                         />
-                        <TrackDetailsInput label="Genre:" htmlFor="genre" placeHolder="Genre" songName={genre} setSongName={setGenre} />
                     </div>
                 </div>
                 {/* BUTTONS */}

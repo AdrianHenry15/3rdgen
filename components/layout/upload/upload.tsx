@@ -47,6 +47,11 @@ const Upload: React.FC = () => {
         });
     };
 
+    const handleCancel = (id: number) => {
+        // Remove the track from the tracks array
+        setTracks((prevTracks) => prevTracks.filter((track) => track.id !== id));
+    };
+
     // Callback function for when files are dropped
     const onDrop = useCallback(
         (acceptedFiles: File[]) => {
@@ -99,6 +104,7 @@ const Upload: React.FC = () => {
                             defaultSongName={track.defaultSongName}
                             uploadSequence={track.uploadSequence}
                             setUploadSequence={(uploadSequence) => handleUploadSequence(track.id, uploadSequence)}
+                            onCancel={() => handleCancel(track.id)}
                             // songCount={tracks.length}
                             // trackIndex={index}
                         />
