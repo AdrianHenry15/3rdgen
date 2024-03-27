@@ -2,6 +2,13 @@ export enum Roles {
     ADMIN = "admin",
 }
 
+export enum UploadSequence {
+    NONE,
+    PROCESSING,
+    SAVED,
+    UPLOADED,
+}
+
 export type NavMenuType = {
     title: string;
     link: string;
@@ -25,6 +32,7 @@ export type SongType = {
     price: number;
     artist: string;
     audio_file: string;
+    upload_sequence: UploadSequence;
     album_name?: string;
     genre?: string;
     release_date?: string;

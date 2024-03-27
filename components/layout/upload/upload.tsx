@@ -1,90 +1,73 @@
 "use client";
 
-// Importing necessary modules from React and react-dropzone
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import UploadDetails from "./upload-details"; // Importing UploadDetails component
+import UploadDetails from "./upload-details";
+import { UploadSequence, SongType } from "../../../lib/types";
 
-export enum UploadSequence {
-    NONE,
-    PROCESSING,
-    SAVED,
-    UPLOADED,
-}
-
-// Interface for defining track details
-interface TrackDetails {
-    id: number;
-    songName: string;
-    uploadSequence: UploadSequence;
-    defaultSongName: string;
-}
-
-// Functional component for uploading tracks
 const Upload: React.FC = () => {
-    // State variables for managing tracks and generating unique IDs
-    const [tracks, setTracks] = useState<TrackDetails[]>([]);
-    const [nextTrackId, setNextTrackId] = useState(1); // To generate unique IDs for tracks
+    const [tracks, setTracks] = useState<SongType[]>([]);
 
-    // Function to preprocess song name
     const preprocessSongName = (fileName: string) => {
-        // Remove dashes and capitalize the start of each word
         return fileName.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
     };
 
-    // Function to handle processing change for a track
-    const handleUploadSequence = (id: number, uploadSequence: UploadSequence) => {
-        // Update processing status for the track with given ID
+    // Function to update a specific song in the tracks array
+    const updateTrack = (updatedTrack: Partial<SongType>, trackIndex: number) => {
         setTracks((prevTracks) => {
-            const updatedTracks = prevTracks.map((track) => {
-                if (track.id === id) {
-                    console.log(`Track ID: ${id}, Upload Sequence:`, uploadSequence); // Log uploadSequence for the track
-                    return { ...track, uploadSequence };
-                }
-                return track;
-            });
-            return updatedTracks;
+            const newTracks = [...prevTracks]; // Create a copy of the tracks array
+            // Update the specified track with the updated properties
+            newTracks[trackIndex] = { ...newTracks[trackIndex], ...updatedTrack };
+            return newTracks; // Return the updated array
         });
     };
 
-    const handleCancel = (id: number) => {
-        // Remove the track from the tracks array
-        setTracks((prevTracks) => prevTracks.filter((track) => track.id !== id));
+    // Function to update a specific property of a track in the tracks array
+    const updateTrackProperty = (property: string, value: string | number, trackIndex: number) => {
+        // Update the state of tracks array using the functional form of setState
+        setTracks((prevTracks) => {
+            // Create a new array by spreading the previous tracks array
+            const newTracks = [...prevTracks];
+            // Update the specific track at trackIndex by spreading its previous properties and updating the specified property with the new value
+            newTracks[trackIndex] = {
+                ...newTracks[trackIndex],
+                [property]: value,
+            };
+            // Return the updated tracks array
+            return newTracks;
+        });
     };
 
-    // Callback function for when files are dropped
     const onDrop = useCallback(
         (acceptedFiles: File[]) => {
-            // Process each dropped file
             acceptedFiles.forEach((file) => {
                 const parts = file.name.split("-");
                 const songName = parts[0];
                 const defaultSongName = preprocessSongName(songName);
-                // Add track details to the state
+                // Add track to the store
                 setTracks((prevTracks) => [
                     ...prevTracks,
                     {
-                        id: nextTrackId,
-                        songName,
-                        uploadSequence: UploadSequence.PROCESSING,
-                        defaultSongName,
+                        id: file.name,
+                        title: defaultSongName,
+                        upload_sequence: UploadSequence.PROCESSING,
+                        audio_file: file.name,
+                        img: {},
+                        price: 0,
+                        artist: "",
                     },
                 ]);
-                // Increment the track ID for next track
-                setNextTrackId((prevId) => prevId + 1);
             });
         },
-        [nextTrackId]
+        [setTracks]
     );
 
-    // Hook for drop zone functionality
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-    // JSX for rendering Upload component
     return (
         <div className="relative flex justify-evenly flex-col">
             {/* Render drop zone if no tracks are processing */}
-            {!tracks.some((item) => item.uploadSequence !== UploadSequence.NONE) && (
+            {!tracks.some((item) => item.upload_sequence !== UploadSequence.NONE) && (
                 <div className="h-screen flex justify-center items-center">
                     <div
                         {...getRootProps()}
@@ -96,22 +79,22 @@ const Upload: React.FC = () => {
                 </div>
             )}
             {/* Render track details for each track */}
-            {tracks.map(
-                (track, index) =>
-                    track.uploadSequence !== UploadSequence.NONE && (
-                        <UploadDetails
-                            key={track.id}
-                            defaultSongName={track.defaultSongName}
-                            uploadSequence={track.uploadSequence}
-                            setUploadSequence={(uploadSequence) => handleUploadSequence(track.id, uploadSequence)}
-                            onCancel={() => handleCancel(track.id)}
-                            // songCount={tracks.length}
-                            // trackIndex={index}
-                        />
-                    )
-            )}
+            <div className="h-screen">
+                {tracks.map(
+                    (track, index) =>
+                        track.upload_sequence !== UploadSequence.NONE && (
+                            <UploadDetails
+                                setTrack={(updatedTrack: Partial<SongType>) => updateTrack(updatedTrack, index)}
+                                updateTrackProperty={updateTrackProperty}
+                                index={index}
+                                key={track.id}
+                                track={track}
+                            />
+                        )
+                )}
+            </div>
         </div>
     );
 };
 
-export default Upload; // Export the Upload component
+export default Upload;

@@ -1,16 +1,27 @@
+import { SongType } from "@/lib/types";
 import React from "react";
 
 interface ITrackDetailsInputProps {
-    songName: string;
+    track: SongType;
+    value: string;
+    trackIndex: number;
     placeHolder: string;
     label: string;
     htmlFor: string;
-    setSongName: (value: string) => void;
+    setTrack: (updatedTrack: Partial<SongType>, trackIndex: number) => void;
 }
 
 const TrackDetailsInput = (props: ITrackDetailsInputProps) => {
-    const handleSongNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        props.setSongName(e.target.value); // Call setSongName with the new value from input
+    const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (props.value === props.track.title) {
+            props.setTrack({ title: e.target.value }, props.trackIndex);
+        } else if (props.value === props.track.bpm) {
+            props.setTrack({ bpm: e.target.value }, props.trackIndex);
+        } else if (props.value === props.track.song_key) {
+            props.setTrack({ song_key: e.target.value }, props.trackIndex);
+        }
+
+        console.log(props.value);
     };
 
     return (
@@ -22,8 +33,8 @@ const TrackDetailsInput = (props: ITrackDetailsInputProps) => {
                 className="h-7 rounded-sm w-full"
                 type="text"
                 placeholder={props.placeHolder}
-                value={props.songName}
-                onChange={handleSongNameChange}
+                value={props.value}
+                onChange={handleInput}
             />
         </div>
     );

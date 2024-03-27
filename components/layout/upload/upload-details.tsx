@@ -2,26 +2,23 @@
 
 import Image from "next/image";
 import React, { useState } from "react";
-
-import TrackDetailsInput from "./track-details-input";
 import { BiCamera } from "react-icons/bi";
 import TrackDetailsPreview from "./track-details-preview";
-import { UploadSequence } from "./upload";
+import { useTrackStore } from "stores/track-store";
+import { SongType, UploadSequence } from "@/lib/types";
+import TrackDetailsInput from "./track-details-input";
 
-interface UploadDetailsProps {
-    uploadSequence: UploadSequence;
-    setUploadSequence: (uploadSequence: UploadSequence) => void; // Callback to update processing state
-    defaultSongName: string;
-    onCancel: () => void;
-    // songCount: number; // Total count o songs being tracked
-    // trackIndex: number; // Index of current song being processed
+interface IUploadDetailsProps {
+    track: SongType;
+    index: number;
+    setTrack: (updatedTrack: Partial<SongType>, trackIndex: number) => void;
+    updateTrackProperty: (property: string, value: string | number, trackIndex: number) => void;
 }
 
-const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSongName, setUploadSequence, onCancel }) => {
-    const [songName, setSongName] = useState(defaultSongName);
+const UploadDetails: React.FC<IUploadDetailsProps> = ({ track, index, setTrack, updateTrackProperty }) => {
+    const [songName, setSongName] = useState("");
     const [bpm, setBpm] = useState("");
     const [songKey, setSongKey] = useState("");
-    const [image, setImage] = useState<any | null>(null);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -29,33 +26,36 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSo
             const reader = new FileReader();
             reader.onloadend = () => {
                 // Once the file is loaded, set the result (data URL) to the component's state
-                setImage(reader.result);
+                setTrack(
+                    {
+                        img: reader.result,
+                    },
+                    index
+                ); // Update the track's image using the state store
             };
             reader.readAsDataURL(file);
         }
     };
 
-    // Function to handle cancel
     const handleCancel = () => {
         if (window.confirm("Are you sure you want to cancel?")) {
-            onCancel();
+            setTrack({ upload_sequence: UploadSequence.NONE }, index);
         }
+        console.log(track);
     };
 
     const save = () => {
-        setUploadSequence(UploadSequence.SAVED);
+        setTrack({ upload_sequence: UploadSequence.SAVED }, index);
     };
 
-    return uploadSequence === UploadSequence.SAVED ? (
-        <div className="h-screen">
-            <TrackDetailsPreview
-                setUploadSequence={() => setUploadSequence(UploadSequence.PROCESSING)}
-                songName={songName}
-                bpm={bpm}
-                songKey={songKey}
-                img={image}
-            />
-        </div>
+    return track.upload_sequence === UploadSequence.SAVED ? (
+        <TrackDetailsPreview
+            setUploadSequence={() => setTrack({ upload_sequence: UploadSequence.PROCESSING }, index)}
+            songName={track.title}
+            bpm={track.bpm!}
+            songKey={track.song_key!}
+            img={track.img}
+        />
     ) : (
         <div className="flex flex-col w-full h-full items-center my-4">
             <div className="flex flex-col rounded-sm border-2 border-dashed border-white w-full p-4 md:p-20 lg:w-[1000px]">
@@ -77,13 +77,13 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSo
                             />
                         </label>
                         {/* Display image preview if an image is selected */}
-                        {image ? (
+                        {track.img && typeof track.img === "string" && track.img.trim() !== "" ? (
                             <div className="w-full flex h-full relative">
                                 <Image
                                     width={75}
                                     height={75}
                                     className="aspect-square w-full h-full object-cover"
-                                    src={image}
+                                    src={track.img!}
                                     alt="Preview"
                                 />
                             </div>
@@ -93,19 +93,31 @@ const UploadDetails: React.FC<UploadDetailsProps> = ({ uploadSequence, defaultSo
                     </div>
                     <div className="flex flex-col w-full my-4 lg:my-0 lg:ml-4">
                         <TrackDetailsInput
+                            track={track}
+                            trackIndex={index}
                             label="Song Name:"
                             htmlFor="song-name"
                             placeHolder="Song Name"
-                            songName={songName}
-                            setSongName={setSongName}
+                            value={track.title}
+                            setTrack={setTrack}
                         />
-                        <TrackDetailsInput label="Bpm:" htmlFor="bpm" placeHolder="Bpm" songName={bpm} setSongName={setBpm} />
                         <TrackDetailsInput
+                            track={track}
+                            trackIndex={index}
+                            label="Bpm:"
+                            htmlFor="bpm"
+                            placeHolder="Bpm"
+                            value={track.bpm!}
+                            setTrack={setTrack}
+                        />
+                        <TrackDetailsInput
+                            track={track}
+                            trackIndex={index}
                             label="Song Key:"
                             htmlFor="song-key"
                             placeHolder="Song Key"
-                            songName={songKey}
-                            setSongName={setSongKey}
+                            value={track.song_key!}
+                            setTrack={setTrack}
                         />
                     </div>
                 </div>
